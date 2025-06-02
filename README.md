@@ -16,3 +16,5 @@ git clone https://github.com/eahagan/readme-generator.git
 cd readme-generator
 
 //Used Xpert learning assistant chat, tutor assistance, and code expamples, like W3 Schools for this project//
+##Screencastify link
+https://app.screencastify.com/v2/watch/mv5b68qxkgMdjZYgHe7M
