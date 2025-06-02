@@ -1,8 +1,8 @@
+// index.js
 import inquirer from 'inquirer';
-import fs from 'fs/promises';
+import fs from 'fs';
 import generateMarkdown from './generateMarkdown.js';
 
-// Questions for the user
 const questions = [
   {
     type: 'input',
@@ -42,28 +42,24 @@ const questions = [
   },
 ];
 
-// Function to write the README file
-async function writeToFile(fileName, data) {
-  try {
-    await fs.writeFile(fileName, data);
-    console.log('✅ README.md successfully generated!');
-  } catch (err) {
-    console.error('❌ Error writing file:', err);
-  }
+function writeToFile(fileName, data) {
+  fs.writeFile(fileName, data, (err) => {
+    if (err) {
+      console.error(err);
+    } else {
+      console.log('README.md successfully generated!');
+    }
+  });
 }
 
-// Function to initialize the app
-async function init() {
-  try {
-    const answers = await inquirer.prompt(questions);
+function init() {
+  inquirer.prompt(questions).then((answers) => {
     const markdownContent = generateMarkdown(answers);
-    await writeToFile('README.md', markdownContent);
-  } catch (err) {
-    console.error('❌ Error initializing app:', err);
-  }
+    writeToFile('README.md', markdownContent);
+  });
 }
 
-// Start the application
 init();
+
 
 

@@ -1,6 +1,6 @@
 # README Generator
 
-This is a command-line app that generates a README.md file from user input.
+This is a simple command-line app that generates a README.md file based on user input.
 
 ## Features
 
@@ -8,11 +8,9 @@ This is a command-line app that generates a README.md file from user input.
 - Generates a README with license, installation, usage, and more
 - Easy to use and fully customizable
 
-## Installation
+## How to Use
 
-Clone the repository and install dependencies:
-
+1. Clone the repository:
 ```bash
 git clone https://github.com/eahagan/readme-generator.git
 cd readme-generator
-npm install
