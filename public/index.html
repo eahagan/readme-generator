@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Weather App</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 1rem;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    input, button {
+      padding: 0.5rem;
+      margin: 0.5rem 0;
+    }
+
+    .forecast, .history {
+      margin-top: 2rem;
+    }
+
+    .city-entry {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      border-bottom: 1px solid #ccc;
+      padding: 0.5rem 0;
+    }
+
+    .forecast-day {
+      border: 1px solid #ddd;
+      padding: 1rem;
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>5-Day Weather Forecast</h1>
+
+  <form id="cityForm">
+    <label for="cityInput">Enter a city name:</label><br/>
+    <input type="text" id="cityInput" name="city" required />
+    <button type="submit">Get Forecast</button>
+  </form>
+
+  <div class="forecast" id="forecast">
+    <!-- Forecast results will appear here -->
+  </div>
+
+  <div class="history" id="history">
+    <h2>Search History</h2>
+    <!-- Search history entries will appear here -->
+  </div>
+
+  <script>
+    const form = document.getElementById('cityForm');
+    const cityInput = document.getElementById('cityInput');
+    const forecastContainer = document.getElementById('forecast');
+    const historyContainer = document.getElementById('history');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const city = cityInput.value.trim();
+      if (!city) return;
+
+      try {
+        const res = await fetch('/api/weather', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ city }),
+        });
+        const data = await res.json();
+        displayForecast(data.forecast);
+        loadHistory();
+      } catch (err) {
+        console.error('Error fetching weather:', err);
+      }
+
+      cityInput.value = '';
+    });
+
+    async function loadHistory() {
+      try {
+        const res = await fetch('/api/weather/history');
+        const cities = await res.json();
+
+        historyContainer.innerHTML = '<h2>Search History</h2>';
+        cities.forEach(({ id, city }) => {
+          const div = document.createElement('div');
+          div.className = 'city-entry';
+          div.innerHTML = `
+            <span>${city}</span>
+            <button onclick="deleteCity('${id}')">Delete</button>
+          `;
+          historyContainer.appendChild(div);
+        });
+      } catch (err) {
+        console.error('Error loading history:', err);
+      }
+    }
+
+    async function deleteCity(id) {
+      try {
+        await fetch(`/api/weather/history/${id}`, { method: 'DELETE' });
+        loadHistory();
+      } catch (err) {
+        console.error('Error deleting city:', err);
+      }
+    }
+
+    function displayForecast(data) {
+      forecastContainer.innerHTML = '<h2>5-Day Forecast</h2>';
+      const days = {};
+
+      data.list.forEach(item => {
+        const date = item.dt_txt.split(' ')[0];
+        if (!days[date]) {
+          days[date] = item;
+        }
+      });
+
+      Object.values(days).slice(0, 5).forEach(day => {
+        const div = document.createElement('div');
+        div.className = 'forecast-day';
+        div.innerHTML = `
+          <strong>${day.dt_txt.split(' ')[0]}</strong><br/>
+          Temp: ${day.main.temp} °C<br/>
+          Weather: ${day.weather[0].description}<br/>
+        `;
+        forecastContainer.appendChild(div);
+      });
+    }
+
+    loadHistory();
+  </script>
+</body>
+</html>
